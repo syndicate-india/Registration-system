@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syndicate India</title>
+
+<style>
+/* ===== BODY ===== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: url('https://images.unsplash.com/photo-1508780709619-79562169bc64') no-repeat center/cover;
+  background-size: cover;
+  color: white;
+}
+
+/* ===== HEADER ===== */
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: linear-gradient(to right, #0a2a66, #1e4db7);
+  color: white;
+  border-bottom: 3px solid orange;
+}
+.logo { width: 55px; height: 55px; border-radius: 50%; margin-right: 10px; }
+
+/* ===== FORM CONTAINER ===== */
+.container {
+  width: 350px;
+  margin: 120px auto;
+  padding: 25px;
+  border-radius: 15px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #0072ff;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover { background: #0056b3; }
+
+.hidden { display: none; }
+
+.toggle {
+  color: #00c6ff;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.info {
+  font-size: 13px;
+  margin: 5px 0;
+  color: #ddd;
+}
+
+/* Terms */
+.terms { display: flex; align-items: center; font-size: 13px; margin-top: 8px; gap: 5px; }
+.terms a { color: #00c6ff; text-decoration: none; }
+.hecker label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.hecker span { white-space: nowrap; font-size: 13px; }
+</style>
+</head>
+
+<body>
+<header class="header">
+  <img src="https://i.ibb.co/v4q9v4BV/file-00000000099c71fd82408109e2e8fbbb.png" class="logo">
+  <h3>Syndicate India LLP</h3>
+</header>
+
+<div class="container">
+<h2 id="title">Register</h2>
+
+<form onsubmit="return false;">
+
+<!-- REGISTER -->
+<div id="registerBox">
+  <input type="text" id="name" placeholder="Full Name" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="tel" id="mobile" placeholder="Mobile Number" required>
+  <input type="password" id="password" placeholder="Password" required>
+</div>
+
+<!-- LOGIN -->
+<div id="loginBox" class="hidden">
+  <input type="text" id="loginInput" placeholder="Email or Mobile">
+  <input type="password" id="loginPass" placeholder="Password">
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div id="forgotBox" class="hidden">
+  <input type="text" id="recoverInput" placeholder="Email or Mobile">
+  <button type="button" onclick="sendOTP()">Send OTP</button>
+  <div class="info" id="maskedInfo"></div>
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <input type="password" id="newPass" placeholder="New Password">
+  <button type="button" onclick="resetPassword()">Change Password</button>
+</div>
+
+<button type="button" onclick="submitForm()">Submit</button>
+
+<div class="hecker">
+  <label>
+    <input id="termsCheck" type="checkbox">
+    <span>I read all the <a href="terms.html" target="_blank">Terms & Conditions</a></span>
+  </label>
+</div>
+
+</form>
+
+<p class="toggle" onclick="switchMode()">Switch Login/Register</p>
+<p class="toggle" onclick="showForgot()">Forgot Password?</p>
+</div>
+
+<script>
+let mode = "register";
+const API = "https://script.google.com/macros/s/AKfycbxWnWGAY9agVIN-yylhufniPMdd7KsmHaftko7ACw9tLuxgJQEN9hWTwPCg17uFFA-D/exec"; // ← yahan apna Apps Script URL dalna
+let realOTP = "";
+
+// SWITCH MODE
+function switchMode(){
+  mode = (mode==="register")?"login":"register";
+  document.getElementById("registerBox").classList.toggle("hidden");
+  document.getElementById("loginBox").classList.toggle("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
+  document.getElementById("title").innerText = (mode==="login")?"Login":"Register";
+}
+
+// SHOW FORGOT
+function showForgot(){
+  mode="forgot";
+  document.getElementById("registerBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.remove("hidden");
+  document.getElementById("title").innerText="Forgot Password";
+}
+
+// VALIDATION
+function validateMobile(num){ return /^[6-9]\d{9}$/.test(num); }
+
+// SUBMIT
+function submitForm(){
+  if(!document.getElementById("termsCheck").checked){ alert("Accept Terms & Conditions ❗"); return; }
+
+  if(mode==="register"){
+    let name=document.getElementById("name").value;
+    let email=document.getElementById("email").value;
+    let mobile=document.getElementById("mobile").value;
+    let password=document.getElementById("password").value;
+
+    if(!validateMobile(mobile)){ alert("Invalid Mobile Number ❌"); return; }
+
+    fetch(API + `?action=register&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}&password=${encodeURIComponent(password)}`, {method:'POST'})
+    .then(res=>res.json())
+    .then(data=>alert(data.message));
+  }
+  else if(mode==="login"){
+    let input=document.getElementById("loginInput").value;
+    let pass=document.getElementById("loginPass").value;
+    fetch(API + `?action=login&input=${encodeURIComponent(input)}&password=${encodeURIComponent(pass)}`, {method:'POST'})
+    .then(res=>res.json())
+    .then(data=>alert(data.message));
+  }
+}
+
+// SEND OTP
+function sendOTP(){
+  let input=document.getElementById("recoverInput").value;
+  if(!input){ alert("Enter Email or Mobile"); return; }
+
+  fetch(API + `?action=forgotPassword&input=${encodeURIComponent(input)}`, {method:'POST'})
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.status==="success"){ realOTP=data.otp; alert("OTP sent! (Demo)"); }
+    else alert(data.message);
+  });
+}
+
+// RESET PASSWORD
+function resetPassword(){
+  let input=document.getElementById("recoverInput").value;
+  let otp=document.getElementById("otp").value;
+  let newPass=document.getElementById("newPass").value;
+
+  fetch(API + `?action=resetPasswordWithOTP&input=${encodeURIComponent(input)}&otp=${encodeURIComponent(otp)}&newPass=${encodeURIComponent(newPass)}`, {method:'POST'})
+  .then(res=>res.json())
+  .then(data=>alert(data.message));
+}
+</script>
+</body>
+  </html>
