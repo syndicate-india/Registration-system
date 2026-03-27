@@ -81,6 +81,13 @@ button:hover { background: #0056b3; }
 .terms a { color: #00c6ff; text-decoration: none; }
 .hecker label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .hecker span { white-space: nowrap; font-size: 13px; }
+
+    .email-btn {
+    background-color: #007BFF;
+  }
+  .whatsapp-btn {
+    background-color: #25D366;
+  }
 </style>
 </head>
 
@@ -111,8 +118,15 @@ button:hover { background: #0056b3; }
 
 <!-- FORGOT PASSWORD -->
 <div id="forgotBox" class="hidden">
-  <button onclick="mailto:rajputgrpdelhi@yahoo.com">Click here to mail</button>
-  <button id="btn"></button>
+ !-- Email Button -->
+<button class="email-btn" onclick="window.location.href='rajputgrpdelhi@yahoo.com?subject=Hello&body=Hi there!'">
+  Send Email
+</button>
+
+<!-- WhatsApp Button -->
+<button class="whatsapp-btn" onclick="window.open('https://wa.me/9540823706', '_blank')">
+  Chat on WhatsApp
+</button>
 </div>
 
 <button type="button" onclick="submitForm()">Submit</button>
