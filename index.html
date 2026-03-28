@@ -6,16 +6,13 @@
 <title>Syndicate India</title>
 
 <style>
-/* ===== BODY ===== */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: url('https://images.unsplash.com/photo-1508780709619-79562169bc64') no-repeat center/cover;
-  background-size: cover;
-  color: white;
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 .header {
   position: fixed;
   top: 0;
@@ -28,16 +25,23 @@ body {
   color: white;
   border-bottom: 3px solid orange;
 }
-.logo { width: 55px; height: 55px; border-radius: 50%; margin-right: 10px; }
 
-/* ===== FORM CONTAINER ===== */
+.logo {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* FORM */
 .container {
-  width: 350px;
+  width: 330px;
   margin: 120px auto;
-  padding: 25px;
+  padding: 20px;
   border-radius: 15px;
-  background: rgba(0,0,0,0.35);
+  background: rgba(255,255,255,0.1);
   backdrop-filter: blur(12px);
+  color: white;
   text-align: center;
 }
 
@@ -77,27 +81,41 @@ button:hover { background: #0056b3; }
 }
 
 /* Terms */
-.terms { display: flex; align-items: center; font-size: 13px; margin-top: 8px; gap: 5px; }
-.terms a { color: #00c6ff; text-decoration: none; }
-.hecker label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.hecker span { white-space: nowrap; font-size: 13px; }
+.terms {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin-top: 8px;
+  gap: 5px;
+}
 
-    .email-btn {
-    background-color: #007BFF;
-  }
-  .whatsapp-btn {
-    background-color: #25D366;
-  }
+.terms a {
+  color: #00c6ff;
+  text-decoration: none;
+}
+.hecker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.hecker span {
+  white-space: nowrap; /* line break rokega */
+  font-size: 13px;
+}
 </style>
 </head>
 
 <body>
+
 <header class="header">
   <img src="https://i.ibb.co/v4q9v4BV/file-00000000099c71fd82408109e2e8fbbb.png" class="logo">
   <h3>Syndicate India LLP</h3>
 </header>
 
 <div class="container">
+
 <h2 id="title">Register</h2>
 
 <form onsubmit="return false;">
@@ -118,105 +136,179 @@ button:hover { background: #0056b3; }
 
 <!-- FORGOT PASSWORD -->
 <div id="forgotBox" class="hidden">
-<button class="email-btn" onclick="window.location.href='mailto:rajputgrpdelhi@yahoo.com?subject=Hello&body=Hi there!'">
-  Send Email
-</button>
+  <input type="text" id="recoverInput" placeholder="Email or Mobile">
 
-<!-- WhatsApp Button -->
-<button class="whatsapp-btn" onclick="window.open('https://wa.me/9540823706', '_blank')">
-  Chat on WhatsApp
-</button>
+  <button type="button" onclick="sendOTP()">Send OTP</button>
+
+  <div class="info" id="maskedInfo"></div>
+
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <input type="password" id="newPass" placeholder="New Password">
+
+  <button type="button" onclick="resetPassword()">Change Password</button>
 </div>
 
 <button type="button" onclick="submitForm()">Submit</button>
-
 <div class="hecker">
   <label>
     <input id="termsCheck" type="checkbox">
-    <span>I read all the <a href="https://syndicate-india.github.io/Syndicate-india-database/" target="_blank">Terms & Conditions</a></span>
+    <span>I read all the 
+      <a href="terms.html" target="_blank">Terms & Conditions</a>
+    </span>
   </label>
 </div>
-
 </form>
 
 <p class="toggle" onclick="switchMode()">Switch Login/Register</p>
 <p class="toggle" onclick="showForgot()">Forgot Password?</p>
-</div>
 
+</div>
 <script>
 let mode = "register";
-const API = "https://script.google.com/macros/s/AKfycbxWnWGAY9agVIN-yylhufniPMdd7KsmHaftko7ACw9tLuxgJQEN9hWTwPCg17uFFA-D/exec"; // ← yahan apna Apps Script URL dalna
-let realOTP = "";
+const API = "https://script.google.com/macros/s/AKfycbwlThbPDdmVfUrc3bsGBaBX5Hx1p_BO5uhqHagEoH5mgdEuz6UyXNSy9ZKKdtyh57r0/exec";
 
 // SWITCH MODE
-function switchMode(){
-  mode = (mode==="register")?"login":"register";
-  document.getElementById("registerBox").classList.toggle("hidden");
-  document.getElementById("loginBox").classList.toggle("hidden");
-  document.getElementById("forgotBox").classList.add("hidden");
-  document.getElementById("title").innerText = (mode==="login")?"Login":"Register";
+function switchMode() {
+  mode = (mode === "register") ? "login" : "register";
+
+  registerBox.classList.toggle("hidden");
+  loginBox.classList.toggle("hidden");
+  forgotBox.classList.add("hidden");
+
+  title.innerText = mode === "login" ? "Login" : "Register";
 }
 
-// SHOW FORGOT
-function showForgot(){
-  mode="forgot";
-  document.getElementById("registerBox").classList.add("hidden");
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("forgotBox").classList.remove("hidden");
-  document.getElementById("title").innerText="Forgot Password";
+// FORGOT
+function showForgot() {
+  mode = "forgot";
+
+  registerBox.classList.add("hidden");
+  loginBox.classList.add("hidden");
+  forgotBox.classList.remove("hidden");
+
+  title.innerText = "Forgot Password";
 }
 
-// VALIDATION
-function validateMobile(num){ return /^[6-9]\d{9}$/.test(num); }
+// MOBILE VALIDATION
+function validateMobile(num) {
+  return /^[6-9]\d{9}$/.test(num);
+}
 
-// SUBMIT
-function submitForm(){
-  if(!document.getElementById("termsCheck").checked){ alert("Accept Terms & Conditions ❗"); return; }
+// MAIN SUBMIT
+function submitForm() {
 
-  if(mode==="register"){
-    let name=document.getElementById("name").value;
-    let email=document.getElementById("email").value;
-    let mobile=document.getElementById("mobile").value;
-    let password=document.getElementById("password").value;
-
-    if(!validateMobile(mobile)){ alert("Invalid Mobile Number ❌"); return; }
-
-    fetch(API + `?action=register&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}&password=${encodeURIComponent(password)}`, {method:'POST'})
-    .then(res=>res.json())
-    .then(data=>alert(data.message));
+  // TERMS only for register
+  if (mode === "register" && !termsCheck.checked) {
+    alert("Accept Terms ❗");
+    return;
   }
-  else if(mode==="login"){
-    let input=document.getElementById("loginInput").value;
-    let pass=document.getElementById("loginPass").value;
-    fetch(API + `?action=login&input=${encodeURIComponent(input)}&password=${encodeURIComponent(pass)}`, {method:'POST'})
+
+  // REGISTER
+  if (mode === "register") {
+
+    let name = name.value;
+    let email = email.value;
+    let mobile = mobile.value;
+    let password = password.value;
+
+    if (!validateMobile(mobile)) {
+      alert("Invalid Mobile ❌");
+      return;
+    }
+
+    fetch(API,{
+      method:"POST",
+      body: JSON.stringify({
+        action:"register",
+        name, email, mobile, password
+      })
+    })
     .then(res=>res.json())
-    .then(data=>alert(data.message));
+    .then(data=>{
+      alert(data.message);
+    });
+  }
+
+  // LOGIN
+  else if (mode === "login") {
+
+    let input = loginInput.value;
+    let password = loginPass.value;
+
+    fetch(API,{
+      method:"POST",
+      body: JSON.stringify({
+        action:"login",
+        email: input,
+        password
+      })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+
+      if(data.status === "banned"){
+        alert("Your account was banned ❌\nReason: " + data.reason);
+        return;
+      }
+
+      if(data.status === "success"){
+        localStorage.setItem("user", JSON.stringify({
+          email: input
+        }));
+        alert("Login Success ✅");
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Invalid Login ❌");
+      }
+    });
   }
 }
 
-// SEND OTP
-function sendOTP(){
-  let input=document.getElementById("recoverInput").value;
-  if(!input){ alert("Enter Email or Mobile"); return; }
+// OTP SEND
+function sendOTP() {
+  let input = recoverInput.value;
 
-  fetch(API + `?action=forgotPassword&input=${encodeURIComponent(input)}`, {method:'POST'})
+  fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      action:"sendOTP",
+      email: input
+    })
+  })
   .then(res=>res.json())
   .then(data=>{
-    if(data.status==="success"){ realOTP=data.otp; alert("OTP sent! (Demo)"); }
-    else alert(data.message);
+    if(data.status==="success"){
+      alert("OTP sent to Email 📩");
+    } else {
+      alert("Email not found ❌");
+    }
   });
 }
 
 // RESET PASSWORD
-function resetPassword(){
-  let input=document.getElementById("recoverInput").value;
-  let otp=document.getElementById("otp").value;
-  let newPass=document.getElementById("newPass").value;
+function resetPassword() {
+  let email = recoverInput.value;
+  let otp = otp.value;
+  let newPass = newPass.value;
 
-  fetch(API + `?action=resetPasswordWithOTP&input=${encodeURIComponent(input)}&otp=${encodeURIComponent(otp)}&newPass=${encodeURIComponent(newPass)}`, {method:'POST'})
+  fetch(API,{
+    method:"POST",
+    body: JSON.stringify({
+      action:"resetPassword",
+      email, otp, newPass
+    })
+  })
   .then(res=>res.json())
-  .then(data=>alert(data.message));
+  .then(data=>{
+    if(data.status==="success"){
+      alert("Password Changed ✅");
+      switchMode();
+    } else {
+      alert("Wrong OTP ❌");
+    }
+  });
 }
 </script>
+
 </body>
-  </html>
+    </html>
