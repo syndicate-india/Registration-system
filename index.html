@@ -164,6 +164,9 @@ button:hover { background: #0056b3; }
 
 </div>
 <script>
+
+console.log("JS Loaded ✅");
+
 let mode = "register";
 const API = "https://script.google.com/macros/s/AKfycbwlThbPDdmVfUrc3bsGBaBX5Hx1p_BO5uhqHagEoH5mgdEuz6UyXNSy9ZKKdtyh57r0/exec";
 
@@ -171,22 +174,22 @@ const API = "https://script.google.com/macros/s/AKfycbwlThbPDdmVfUrc3bsGBaBX5Hx1
 function switchMode() {
   mode = (mode === "register") ? "login" : "register";
 
-  registerBox.classList.toggle("hidden");
-  loginBox.classList.toggle("hidden");
-  forgotBox.classList.add("hidden");
+  document.getElementById("registerBox").classList.toggle("hidden");
+  document.getElementById("loginBox").classList.toggle("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
 
-  title.innerText = mode === "login" ? "Login" : "Register";
+  document.getElementById("title").innerText = mode === "login" ? "Login" : "Register";
 }
 
-// FORGOT
+// FORGOT PASSWORD
 function showForgot() {
   mode = "forgot";
 
-  registerBox.classList.add("hidden");
-  loginBox.classList.add("hidden");
-  forgotBox.classList.remove("hidden");
+  document.getElementById("registerBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.remove("hidden");
 
-  title.innerText = "Forgot Password";
+  document.getElementById("title").innerText = "Forgot Password";
 }
 
 // MOBILE VALIDATION
@@ -197,21 +200,23 @@ function validateMobile(num) {
 // MAIN SUBMIT
 function submitForm() {
 
-  // TERMS only for register
-  if (mode === "register" && !termsCheck.checked) {
+  console.log("Submit Clicked");
+
+  // TERMS check
+  if (mode === "register" && !document.getElementById("termsCheck").checked) {
     alert("Accept Terms ❗");
     return;
   }
 
-  // REGISTER
+  // ================= REGISTER =================
   if (mode === "register") {
 
-    let name = name.value;
-    let email = email.value;
-    let mobile = mobile.value;
-    let password = password.value;
+    let nameVal = document.getElementById("name").value;
+    let emailVal = document.getElementById("email").value;
+    let mobileVal = document.getElementById("mobile").value;
+    let passwordVal = document.getElementById("password").value;
 
-    if (!validateMobile(mobile)) {
+    if (!validateMobile(mobileVal)) {
       alert("Invalid Mobile ❌");
       return;
     }
@@ -220,31 +225,38 @@ function submitForm() {
       method:"POST",
       body: JSON.stringify({
         action:"register",
-        name, email, mobile, password
+        name: nameVal,
+        email: emailVal,
+        mobile: mobileVal,
+        password: passwordVal
       })
     })
-    .then(res=>res.json())
-    .then(data=>{
-      alert(data.message);
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Registered Successfully ✅");
+    })
+    .catch(err => {
+      alert("Error aaya ❌");
+      console.log(err);
     });
   }
 
-  // LOGIN
+  // ================= LOGIN =================
   else if (mode === "login") {
 
-    let input = loginInput.value;
-    let password = loginPass.value;
+    let inputVal = document.getElementById("loginInput").value;
+    let passVal = document.getElementById("loginPass").value;
 
     fetch(API,{
       method:"POST",
       body: JSON.stringify({
         action:"login",
-        email: input,
-        password
+        email: inputVal,
+        password: passVal
       })
     })
-    .then(res=>res.json())
-    .then(data=>{
+    .then(res => res.json())
+    .then(data => {
 
       if(data.status === "banned"){
         alert("Your account was banned ❌\nReason: " + data.reason);
@@ -253,62 +265,78 @@ function submitForm() {
 
       if(data.status === "success"){
         localStorage.setItem("user", JSON.stringify({
-          email: input
+          email: inputVal
         }));
         alert("Login Success ✅");
         window.location.href = "dashboard.html";
       } else {
         alert("Invalid Login ❌");
       }
+    })
+    .catch(err => {
+      alert("Server Error ❌");
+      console.log(err);
     });
   }
 }
 
-// OTP SEND
+// ================= SEND OTP =================
 function sendOTP() {
-  let input = recoverInput.value;
+
+  let inputVal = document.getElementById("recoverInput").value;
 
   fetch(API,{
     method:"POST",
     body: JSON.stringify({
       action:"sendOTP",
-      email: input
+      email: inputVal
     })
   })
-  .then(res=>res.json())
-  .then(data=>{
+  .then(res => res.json())
+  .then(data => {
     if(data.status==="success"){
       alert("OTP sent to Email 📩");
     } else {
       alert("Email not found ❌");
     }
+  })
+  .catch(err => {
+    alert("Error sending OTP ❌");
+    console.log(err);
   });
 }
 
-// RESET PASSWORD
+// ================= RESET PASSWORD =================
 function resetPassword() {
-  let email = recoverInput.value;
-  let otp = otp.value;
-  let newPass = newPass.value;
+
+  let emailVal = document.getElementById("recoverInput").value;
+  let otpVal = document.getElementById("otp").value;
+  let newPassVal = document.getElementById("newPass").value;
 
   fetch(API,{
     method:"POST",
     body: JSON.stringify({
       action:"resetPassword",
-      email, otp, newPass
+      email: emailVal,
+      otp: otpVal,
+      newPass: newPassVal
     })
   })
-  .then(res=>res.json())
-  .then(data=>{
+  .then(res => res.json())
+  .then(data => {
     if(data.status==="success"){
       alert("Password Changed ✅");
       switchMode();
     } else {
       alert("Wrong OTP ❌");
     }
+  })
+  .catch(err => {
+    alert("Error resetting password ❌");
+    console.log(err);
   });
 }
-</script>
 
+</script>
 </body>
 </html>
