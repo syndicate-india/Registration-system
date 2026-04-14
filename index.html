@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Join Portal</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #111827;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #1f2937;
+      padding: 25px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .field {
+      position: relative;
+      margin: 12px 0;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+
+    .field label {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      color: gray;
+      transition: 0.3s;
+    }
+
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label,
+    .field select:focus + label,
+    .field select:valid + label {
+      top: -8px;
+      font-size: 11px;
+      color: #22c55e;
+      background: #1f2937;
+      padding: 0 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #22c55e;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #msg {
+      margin-top: 10px;
+    }
+
+    .link {
+      margin-top: 10px;
+      display: block;
+      color: #22c55e;
+      cursor: pointer;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .field {
+      flex: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>Join</h2>
+
+  <form id="form">
+
+    <div class="field">
+      <input type="text" name="name" required placeholder=" ">
+      <label>Name</label>
+    </div>
+
+    <!-- Class + Section same line -->
+    <div class="row">
+
+      <div class="field">
+        <select name="class" required>
+          <option value="" disabled selected hidden></option>
+          <option>I</option><option>II</option><option>III</option>
+          <option>IV</option><option>V</option><option>VI</option>
+          <option>VII</option><option>VIII</option>
+          <option>IX</option><option>X</option>
+          <option>XI Science</option>
+          <option>XI Commerce</option>
+          <option>XI Arts</option>
+          <option>XII Science</option>
+          <option>XII Commerce</option>
+          <option>XII Arts</option>
+        </select>
+        <label>Class</label>
+      </div>
+
+      <div class="field">
+        <select name="section" required>
+          <option value="" disabled selected hidden></option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option>
+          <option>G</option><option>H</option>
+        </select>
+        <label>Section</label>
+      </div>
+
+    </div>
+
+    <div class="field">
+      <input type="number" name="roll" required placeholder=" ">
+      <label>Roll</label>
+    </div>
+    <div class="field">
+      <input type="text" name="id" required placeholder=" ">
+      <label>Student ID</label>
+    </div>
+    <div class="field">
+  <input type="tel" name="mobile" required pattern="[0-9]{10}" placeholder=" ">
+  <label>Mobile Number</label>
+</div>
+
+    <div class="field">
+      <input type="date" name="dob" required placeholder=" ">
+      <label>DOB</label>
+    </div>
+
+    <button type="submit">Submit</button>
+
+  </form>
+
+  <p id="msg"></p>
+
+  <span class="link" onclick="checkEntry()">Check Entry</span>
+
+</div>
+
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbxxHW11dIzfA2Px8wS2lMkObShvz3CD1CHGbFSzuESlyfG3RrfP0y2aZePtqDlulpYxsA/exec";
+
+// SUBMIT
+document.getElementById("form").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  let data = new FormData(this);
+
+  fetch(scriptURL, {
+    method: "POST",
+    body: data
+  })
+  .then(res => res.text())
+  .then(text => {
+    document.getElementById("msg").innerText = text;
+    document.getElementById("form").reset();
+  })
+  .catch(() => {
+    document.getElementById("msg").innerText = "Error Form";
+  });
+});
+
+
+// CHECK ENTRY
+function checkEntry(){
+  let id = prompt("Enter Student ID");
+  if (!id) return;
+
+  fetch(scriptURL + "?id=" + id)
+  .then(res => res.json())
+  .then(data => {
+    if(data.status === "not_found"){
+      alert("No record found");
+    } else {
+      alert(
+        "✅ Found:\n\n" +
+        "Name: " + data.name + "\n" +
+        "Class: " + data.class + "\n" +
+        "Section: " + data.section + "\n" +
+        "Roll: " + data.roll + "\n" +
+        "DOB: " + data.dob
+      );
+    }
+  })
+  .catch(() => alert("Error Occured"));
+}
+
+</script>
+
+</body>
+</html>
